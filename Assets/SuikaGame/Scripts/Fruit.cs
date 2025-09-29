@@ -5,7 +5,6 @@ using UnityEngine;
 public class Fruit : MonoBehaviour
 {
     public int id;
-    private GameManager game;
     private bool hasCollided = false;
     public Dropper dropper;
     public bool isTouchingTopBar = false;
@@ -13,7 +12,6 @@ public class Fruit : MonoBehaviour
     // gets game manager
     void Start()
     {
-        game = GameObject.Find("GameManager").GetComponent<GameManager>();
         dropper = GameObject.Find("Dropper").GetComponent<Dropper>();
     }
 
@@ -25,26 +23,33 @@ public class Fruit : MonoBehaviour
         Destroy(fruit2);
     }
 
-    IEnumerator WaitForEndGame() {
+    IEnumerator WaitForEndGame()
+    {
         yield return new WaitForSeconds(5f);
-        if (isTouchingTopBar == true) {
-            game.endGame();
+        if (isTouchingTopBar == true)
+        {
+            GameManager.Instance.endGame();
         }
     }
 
-    void OnTriggerEnter2D(Collider2D collision) {
+    void OnTriggerEnter2D(Collider2D collision)
+    {
 
         dropper.currentFruit = null;
         dropper.SpawnNewFruit();
     }
 
-    void OnTriggerStay2D(Collider2D collision) {
+    void OnTriggerStay2D(Collider2D collision)
+    {
         isTouchingTopBar = true;
+        GameManager.Instance.switchBlob(true);
         StartCoroutine(WaitForEndGame());
     }
 
-    void OnTriggerExit2D(Collider2D collision) {
+    void OnTriggerExit2D(Collider2D collision)
+    {
         isTouchingTopBar = false;
+        GameManager.Instance.switchBlob(false);
     }
 
     // checks if fruit is touching another fruit
@@ -55,9 +60,9 @@ public class Fruit : MonoBehaviour
         // checks if the other fruit exists and if the id is the same, and checks if the instance id is different (to prevent double combining)
         if (otherFruit != null && otherFruit.id == this.id && this.gameObject.GetInstanceID() < collision.gameObject.GetInstanceID())
         {
-            game.InstantiateFruit(this.transform.position, this.id + 1);
-            game.addScore(this.id);
+            GameManager.Instance.InstantiateFruit(this.transform.position, this.id + 1);
+            GameManager.Instance.addScore(this.id);
             StartCoroutine(DestroyFruits(this.gameObject, collision.gameObject));
-        } 
+        }
     }
 }
